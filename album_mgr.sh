@@ -217,7 +217,7 @@ modify_album() {
                         	read confirm
                         	if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                                 	echo "$new_album:$artist:$old_label:$old_year" >> albums.db
-                                	sed -i "/$album:$artist/d" albums.db
+                                	sed -i "/$album:$artist:$old_label:$old_year/d" albums.db
                                 	echo -e "\n\e\033[0:33mAlbum updated\033[0m"
 				elif [[ "$confirm" == "n" || "$confirm" == "N" ]]; then
 					echo -e "\e\033[0;32mAlbum modify cancelled.\033[0m"
@@ -237,7 +237,7 @@ modify_album() {
                                 read confirm
                                 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                                         echo "$album:$new_artist:$old_label:$old_year" >> albums.db
-                                        sed -i "/$album:$artist/d" albums.db
+                                        sed -i "/$album:$artist:$old_label:$old_year/d" albums.db
                                 	echo -e "\n\e\033[0;32mAlbum updated\033[0m"
 				elif [[ "$confirm" == "n" || "$confirm" == "N" ]]; then
                                         echo -e "\e\033[0;32mAlbum modify cancelled.\033[0m"
@@ -257,7 +257,7 @@ modify_album() {
                                 read confirm
                                 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                                         echo "$album:$artist:$new_label:$old_year" >> albums.db
-                                        sed -i "/$album:$artist/d" albums.db
+                                        sed -i "/$album:$artist:$old_label:$old_year/d" albums.db
                                         echo -e "\n\e\032[0;32mAlbum updated\033[0m"
                                 elif [[ "$confirm" == "n" || "$confirm" == "N" ]]; then
                                         echo -e "\e\033[0;32mAlbum modify cancelled.\033[0m"
@@ -266,7 +266,7 @@ modify_album() {
                                 fi;;
 			
 			# change album release year	
-			"4") echo -en "Enter a new release year for $album "
+			"4") echo -en "\n\e\033[0;33mEnter a new release year for $album:\033[0m "
 				read new_year
 				echo -e "\n\e\033[0;31mWARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING\033[0m"
                                 echo -en "\e\033[0;33mThis action will permanently modify the entry for '$album'!\033[0m "
@@ -277,7 +277,7 @@ modify_album() {
                                 read confirm
                                 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                                         echo "$album:$artist:$old_label:$new_year" >> albums.db
-                                        sed -i "/$album:$artist/d" albums.db
+                                        sed -i "/$album:$artist:$old_label:$old_year/d" albums.db
                                         echo -e "\n\e\033[0:32mAlbum updated\033[0m"
                                 elif [[ "$confirm" == "n" || "$confirm" == "N" ]]; then
                                         echo -e "\e\033[0;32mAlbum modify cancelled.\033[0m"
@@ -318,14 +318,15 @@ clear
 
 # intro message and menu prompt
 echo -e "\n\e\033[1;36mWelcome to the Album database manager. This will allow you to create, view,\033[0m"
-echo -e "\e\033[1;36mand modify a database of albums by their name, artist, label, and release year\033[0m."
+echo -e "\e\033[1;36mand modify a database of albums by their name, artist, label, and release year\033\n[0m"
 
 hold_case=0
 
 # start function menu propmpting, hold user in loop until exit selected
 while [ "$hold_case" == 0 ]; do
 	
-	echo -e "\n\n\n\e\033[1;36m>>>>> MAIN MENU\033[0m"
+	echo -e "\n\e\033[1;36m>>>>> MAIN MENU\033[0m"
+
 	echo -e "\n\e\033[0;32mWhat would you like to do? Please select a function by number.\033[0m"
 
 	# function menu
@@ -359,6 +360,7 @@ while [ "$hold_case" == 0 ]; do
 			else
 				echo "No album database records stored."
 			fi	
+		echo -e "\n"
 		exit;;
 	esac
 done
