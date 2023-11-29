@@ -2,7 +2,7 @@
 #---------------------------------------------------------------------
 # Script name:	Vinyl Album Database Manager - "album_mgr.sh"
 # Created by:	Hans Amelang	
-# Last updated:	21 November 2023
+# Last updated:	29 November 2023
 # Purpose: 	This script allows for the creation of a database for 
 #		vinyl records with ONE FILE ONLY - "albums.db"
 #		Note that first there are a series of functions that
