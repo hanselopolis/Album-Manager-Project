@@ -1,21 +1,27 @@
 #!/bin/bash
 
 new_band() {
+
+	# array for holding band name and memmber names
 	declare -a band
+
+	# exit condition for while loop
 	quit="n"
-	echo -n "New band name: "
+
+	# intro, prompt
+	echo -en "\e\033[0;33mEnter a new band name: \033[0m"
 	read band_name
 	band+=("$band_name")
 	while [ $quit == "n" ]; do 
-		echo -n "Add band member (n to quit adding): "
+		echo -en "\e\033[0;33mAdd band member (\"q\" to quit adding):\033[0m "
 		read band_member
-		if [ "$band_member" == "n" ] || [ "$band_member" == "N" ]; then
+		if [ "$band_member" == "q" ]; then
 			let quit="y"
 		else 
 			band+=("$band_member")
 		fi
 	done
-	echo "${band[@]}"
+	#echo "${band[@]}"
 
 	for each in "${band[@]}"; do
 		echo -n "$each:" >> temp_band
