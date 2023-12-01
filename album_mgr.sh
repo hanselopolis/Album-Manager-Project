@@ -12,11 +12,11 @@
 #----------------------------------------------------------------------
 
 
-# function 1: creating an album record
+# function 1: creating an album record in albums.db
 new_album() {
 
 	# prompts and data entry
-	echo -e "\n\e\033[1;36m>>>>> Enter a new album in the database.\033[0m"
+	echo -e "\n\e\033[1;36m>>>>> Enter a new album in album database.\033[0m"
 	echo -en "\n\e\033[0;33mEnter the name of this album: \033[0m"  
 	read album_name
 
@@ -33,7 +33,51 @@ new_album() {
 	echo -e "\n\e\033[0;32mYou have created an entry for \"$album_name\" by $album_artist, released by $album_label in $album_year.\n\033[0m"
 }
 
-# function 2: view all albums, sorted by artist first, then by year
+# function 2: creating a new band record in bands.db
+new_band() {
+
+        # exit condition for while loop
+        quit="n"
+
+        # intro, prompt for band name, save to temp file
+	echo -e "\n\e\033[1;36m>>>>> Enter a new band in the band database.\033[0m"
+        echo -en "\e\033[0;33mEnter name for this band: \033[0m"
+        read band_name
+        echo -n $band_name: >> bands.tmp
+
+        # while loop for adding band members and their instruments/roles
+        while [ $quit == "n" ]; do
+                echo -en "\e\033[0;33mAdd band member (\"q\" to quit adding):\033[0m "
+                read band_member
+
+                # exit condition when done adding band members
+                if [ "$band_member" == "q" ]; then
+                        let quit="y"
+
+                # read band member name, instrument/role and add both to temp file with delimiters
+                else
+                        echo -n "$band_member, " >> bands.tmp
+                        echo -en "\e\033[0;33mEnter their instrument/role in the band:\033[0m "
+                        read instrument
+                        echo -n $instrument: >> bands.tmp
+                        echo ""
+                fi
+        done
+
+        # remove trailing colon from band member entry
+        truncate -s -1 bands.tmp
+
+        # copy band/member tmp data to bands.db
+        cat bands.tmp >> bands.db
+
+        # add newline at end of data record
+        echo "" >> bands.db
+
+        # remove temp file
+        rm bands.tmp
+}
+
+# function 3: view all albums, sorted by artist first, then by year
 sorted_by_artist () {
 	if ! [ -e "albums.db" ]; then
 		echo -e "\n\e\033[0:31mThere doesn't appear to be anything here yet. Enter an album into the database first.\033[0m"	
@@ -59,7 +103,7 @@ sorted_by_artist () {
 	fi
 }
 
-# function 3: view all albums by a given artist, sorted by artist first then by release year
+# function 4: view all albums by a given artist, sorted by artist first then by release year
 view_by_artist () {	
 	echo -e "\n\e\033[1;36m>>>>> Look up all albums in the database by artist name.\033[0m"	
 	echo -en "\n\e\033[0;33mEnter the artist name: \033[0m"
@@ -75,7 +119,7 @@ view_by_artist () {
 	rm albumsorttempfile
 }
 
-# function 4: view all albums by a given label, sorted by label, then artist, then release year
+# function 5: view all albums by a given label, sorted by label, then artist, then release year
 view_by_label () {
         echo -e "\n\e\033[1;36m>>>>> Look up all albums in the database by label name.\033[0m"
         echo -en "\n\e\033[0;33mEnter the label name: \033[0m"
@@ -88,7 +132,8 @@ view_by_label () {
         awk -F: '{ printf "%-25s %-25s %-20s %d\n", $3, $1, $2, $4 }' albumsorttempfile
         rm albumsorttempfile
 }
-# function 5: view a list of bands/artists with albums in the database
+
+# function 6: view a list of bands/artists with albums in the database
 view_artists() {
 	echo -e "\n\e\033[1;36m>>>>> View band/artist list from the database.\033[0m"
 	echo -e "\nHere is a list of all bands/artists with albums in the database:"
@@ -103,7 +148,7 @@ view_artists() {
 	rm artisttempfile
 }
 
-# function 6: view a list of labels with albums in the database
+# function 7: view a list of labels with albums in the database
 view_labels() {
 	echo -e "\n\e\033[1;36m>>>>> View label list from the database.\033[0m"
         echo -e "\nHere is a list of all labels/publishers with albums in the database:"
@@ -118,7 +163,7 @@ view_labels() {
         rm labeltempfile
 }
 
-# function 7: delete an album from the database
+# function 8: delete an album from the database
 delete_album () {
 	echo -e "\n\e\033[1;36m>>>>> Delete an album from the database. \033[0m"
 
@@ -152,7 +197,7 @@ delete_album () {
 	fi
 }
 
-# funciton 8: modify an album's attributes in the database
+# funciton 9: modify an album's attributes in the database
 modify_album() { 
 	echo -e "\n\e\033[1;36m>>>>> Modify album info. \033[0m"
 	
@@ -292,7 +337,7 @@ modify_album() {
 	fi
 }
 
-# function 9 - delete the whole database, whole bunch of warnings first
+# function 999 - delete the whole database, whole bunch of warnings first
 delete_all() {
 	clear
 	echo -e "\n\e\033[0;31m>>>>> DELETE DATABASE. \033[0m"
@@ -330,14 +375,15 @@ while [ "$hold_case" == 0 ]; do
 	echo -e "\n\e\033[0;32mWhat would you like to do? Please select a function by number.\033[0m"
 
 	# function menu
-	echo "	1) Add a new album to the database."
-	echo "	2) View all albums in the database, sorted by band/artist."
-	echo "	3) View albums from a particular band/artist."
-	echo "	4) View albums from a particular label/publisher."
-	echo "	5) View a list of bands/artists with albums in the database."
-	echo "	6) View a list of labels/publishers with albums in the database."
-	echo "	7) Delete an album from the database."
-	echo "	8) Modify an album's information."
+	echo "	1) Add a new album to the album database."
+	echo "	2) Add a new band to the band database."
+	echo "	3) View all albums in the database, sorted by band/artist."
+	echo "	4) View albums from a particular band/artist."
+	echo "	5) View albums from a particular label/publisher."
+	echo "	6) View a list of bands/artists with albums in the database."
+	echo "	7) View a list of labels/publishers with albums in the database."
+	echo "	8) Delete an album from the database."
+	echo "	9) Modify an album's information."
 	echo -e "	\e\033[0;31m999) Delete the entire database. (CAUTION! THIS IS PERMANENT!)\033[0m"
 	echo -e "\n	(Any other selection to exit the datatabse manager)"
 	echo -en "\n\e\033[0;33mPlease type a selection number: \033[0m"
@@ -346,13 +392,14 @@ while [ "$hold_case" == 0 ]; do
 	# case menu control
 	case $selection in
 		"1") new_album;;
-		"2") sorted_by_artist;;
-		"3") view_by_artist;;
-		"4") view_by_label;;
-		"5") view_artists;;
-		"6") view_labels;;
-		"7") delete_album;;
-		"8") modify_album;;
+		"2") new_band;;
+		"3") sorted_by_artist;;
+		"4") view_by_artist;;
+		"5") view_by_label;;
+		"6") view_artists;;
+		"7") view_labels;;
+		"8") delete_album;;
+		"9") modify_album;;
 		"999") delete_all;;
 		*) echo -e "\n\e\033[0;32mThanks for using the Album Database Manager. \033[0m"
 			if [ -e "albums.db" ]; then
