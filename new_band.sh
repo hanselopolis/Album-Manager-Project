@@ -25,6 +25,7 @@ new_band() {
 			echo -en "\e\033[0;33mEnter their instrument/role in the band:\033[0m "
 			read instrument
 			echo -n $instrument: >> bands.tmp
+			echo ""
 		fi
 	done
 
