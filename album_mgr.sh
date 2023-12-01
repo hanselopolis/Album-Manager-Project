@@ -111,9 +111,9 @@ album-band() {
 
         # proceed to the listing
         else
-		echo -e "\n\e\033[1;36m>>>>> View all albums in the database with available artist information.\n\033[0m"
-		echo -e "\n\e\033[1;36m>>>>> Note that albums without detailed band information (and vice versa)\n\033[0m"
-		echo -e "\n\e\033[1;36m>>>>> will not be displayed.\n\033[0m"
+		echo -e "\n\e\033[1;36m>>>>> View all albums in the database with available artist information.\033[0m"
+		echo -e "\e\033[1;36m>>>>> Note that albums without detailed band information (and vice versa)\033[0m"
+		echo -e "\e\033[1;36m>>>>> will not be displayed.\n\033[0m"
 
 		# sort the albums.db and bands.db files by band name to temp files
                 sort -t ':' -k2,2 -k4,4  albums.db > albums.tmp
