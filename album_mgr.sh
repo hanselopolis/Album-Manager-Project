@@ -82,7 +82,7 @@ sorted_by_artist () {
 		echo -e "\n\e\033[1;36m>>>>> List all albums in the database: \n\033[0m"
 		
 		# sort the records in the database by the artist name first, then year, redirect to a temp file
-		sort -t ':' -k2,2 -k4,4 albums.db > albumsorttempfile
+		sort -t ':' -k2,2 -k4,4 albums.db > albumsort.tmp
 
 		# format the column headers with padding
 		awk 'BEGIN { format = "%-25s %-25s %-20s %-4s\n"
@@ -90,13 +90,13 @@ sorted_by_artist () {
 		echo "-----------------------------------------------------------------------------"
 		
 		# print records in the temp file with padding - artist, album, label, year - pipe to more
-		awk -F: '{ printf "%-25s %-25s %-20s %d\n", $2, $1, $3, $4 }' albumsorttempfile | more
+		awk -F: '{ printf "%-25s %-25s %-20s %d\n", $2, $1, $3, $4 }' albumsort.tmp | less
 		
 		# display the number of albums in the database
-		echo -e "\nThere are $(wc -l < albumsorttempfile) albums in the database."
+		echo -e "\nThere are $(wc -l < albumsorttempfile) albums in the albums database."
 
 		# delete temp file when done
-		rm albumsorttempfile
+		rm albumsort.tmp
 	fi
 }
 
