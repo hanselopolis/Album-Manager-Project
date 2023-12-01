@@ -1,15 +1,16 @@
 #!/bin/bash
-#---------------------------------------------------------------------
+#---------------------------------------------------------------------------
 # Script name:	Vinyl Album Database Manager - "album_mgr.sh"
 # Created by:	Hans Amelang	
-# Last updated:	29 November 2023
+# Last updated:	01 December 2023
 # Purpose: 	This script allows for the creation of a database for 
-#		vinyl records with ONE FILE ONLY - "albums.db"
+#		vinyl records with ONE FILE ONLY - "albums.db" and a
+#		database for bands/artists with ONE FILE ONLY - "bands.db".	
 #		Note that first there are a series of functions that
 #		express data entry and modifications of records in the
 #		database, followed by a main function that controls
 #		database actions via a case menu.
-#----------------------------------------------------------------------
+#---------------------------------------------------------------------------
 
 
 # function 1: creating an album record in albums.db
@@ -207,7 +208,39 @@ view_labels() {
         rm labeltempfile
 }
 
-# function 9: delete an album from the database
+view_bands() {
+	echo -e "\n\e\033[1;36m>>>>> View all bands with info in the bands database. \n\033[0m"
+        # check to make sure albums.db and bands.db exist
+        if ! [ -e "bands.db" ]; then
+                echo -e "It appears that either your band database file is missing."
+                echo -e "Add at least one band to the database and try again"
+
+        # proceed to the listing
+        else
+                # sort the bands.db file by band name to temp files
+                sort -t ':' -k 1  bands.db > bands.tmp
+
+                while read -r line; do
+                        echo $line > line.tmp
+                        band=$(cut -d: -f1 line.tmp)
+                        cut -d: -f2- line.tmp > band.tmp
+                        echo "'$band' is:"
+                        while read -r line; do
+                                IFS=":"
+                                for each in $line; do
+                                        echo "  $each"
+                                done
+                        IFS=""
+                        done < band.tmp
+                        echo ""
+                        let counter+=1
+                done < bands.tmp
+
+                rm bands.tmp line.tmp band.tmp
+        fi
+}
+
+# function 10: delete an album from the database
 delete_album () {
 	echo -e "\n\e\033[1;36m>>>>> Delete an album from the database. \033[0m"
 
@@ -241,7 +274,7 @@ delete_album () {
 	fi
 }
 
-# funciton 10: modify an album's attributes in the database
+# function 11: modify an album's attributes in the database
 modify_album() { 
 	echo -e "\n\e\033[1;36m>>>>> Modify album info. \033[0m"
 	
@@ -425,10 +458,11 @@ while [ "$hold_case" == 0 ]; do
 	echo "	4) View all albums in the database with artist information."
 	echo "	5) View albums from a particular band/artist."
 	echo "	6) View albums from a particular label/publisher."
-	echo "	7) View a list of bands/artists with albums in the database."
-	echo "	8) View a list of labels/publishers with albums in the database."
-	echo "	9) Delete an album from the database."
-	echo "	10) Modify an album's information."
+	echo "	7) View a list of bands/artists with albums in the album database."
+	echo "	8) View a list of labels/publishers with albums in the album database."
+	echo "	9) View a list of all bands and their members in the band database."
+	echo "	10) Delete an album from the database."
+	echo "	11) Modify an album's information."
 	echo -e "	\e\033[0;31m999) Delete the entire database. (CAUTION! THIS IS PERMANENT!)\033[0m"
 	echo -e "\n	(Any other selection to exit the datatabse manager)"
 	echo -en "\n\e\033[0;33mPlease type a selection number: \033[0m"
@@ -444,8 +478,9 @@ while [ "$hold_case" == 0 ]; do
 		"6") view_by_label;;
 		"7") view_artists;;
 		"8") view_labels;;
-		"9") delete_album;;
-		"10") modify_album;;
+		"9") view_bands;;
+		"10") delete_album;;
+		"11") modify_album;;
 		"999") delete_all;;
 		*) echo -e "\n\e\033[0;32mThanks for using the Album Database Manager. \033[0m"
 			if [ -e "albums.db" ]; then
