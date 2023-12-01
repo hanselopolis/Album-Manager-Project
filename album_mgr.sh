@@ -76,11 +76,13 @@ new_band() {
 
 # function 3: view all albums, sorted by artist first, then by year
 sorted_by_artist () {
-	if ! [ -e "albums.db" ]; then
-		echo -e "\n\e\033[0:31mThere doesn't appear to be anything here yet. Enter an album into the database first.\033[0m"	
+	
+	echo -e "\n\e\033[1;36m>>>>> List all albums in the database: \n\033[0m"
+	
+	# if the albums.db file doesn't exist or it's empty
+	if ! [ -e "albums.db" ] || [ -s "albums.db" ] ; then
+		echo -e "\e\033[0;31mThere doesn't appear to be anything here yet. Enter an album into the database first.\033[0m"	
 	else
-		echo -e "\n\e\033[1;36m>>>>> List all albums in the database: \n\033[0m"
-		
 		# sort the records in the database by the artist name first, then year, redirect to a temp file
 		sort -t ':' -k2,2 -k4,4 albums.db > albumsort.tmp
 
@@ -90,10 +92,10 @@ sorted_by_artist () {
 		echo "-----------------------------------------------------------------------------"
 		
 		# print records in the temp file with padding - artist, album, label, year - pipe to more
-		awk -F: '{ printf "%-25s %-25s %-20s %d\n", $2, $1, $3, $4 }' albumsort.tmp | less
+		awk -F: '{ printf "%-25s %-25s %-20s %d\n", $2, $1, $3, $4 }' albumsort.tmp 
 		
 		# display the number of albums in the database
-		echo -e "\nThere are $(wc -l < albumsorttempfile) albums in the albums database."
+		echo -e "\nThere are $(wc -l < albumsort.tmp) albums in the albums database."
 
 		# delete temp file when done
 		rm albumsort.tmp
@@ -219,14 +221,15 @@ view_labels() {
 	cut -d ":" -f 3 albums.db | sort | uniq > label.tmp
         
 	# from the temp file, print the label names to screen with a 'tab' before for formatting, then delete the file
-	while read -r band; do
-                echo "  $band"
+	while read -r label; do
+                echo "	$label"
         done < label.tmp
 
 	# remove temp file when done
         rm label.tmp
 }
 
+# function 9: view all bands in the bands database - bands.db
 view_bands() {
 	echo -e "\n\e\033[1;36m>>>>> View all bands with info in the bands database. \n\033[0m"
         # check to make sure albums.db and bands.db exist
@@ -247,7 +250,7 @@ view_bands() {
                         while read -r line; do
                                 IFS=":"
                                 for each in $line; do
-                                        echo "  $each"
+                                        echo "	$each"
                                 done
                         IFS=""
                         done < band.tmp
@@ -255,6 +258,8 @@ view_bands() {
                         let counter+=1
                 done < bands.tmp
 		
+		echo -e "There are $(wc -l < bands.db) bands in the bands database."
+
 		# remove temp files
                 rm bands.tmp line.tmp band.tmp
         fi
@@ -299,7 +304,7 @@ modify_album() {
 	echo -e "\n\e\033[1;36m>>>>> Modify album info. \033[0m"
 	
 	# prompt for album info
-	echo -en "\nDo you need to see a list of albums available to edit (y/n)? "
+	echo -en "\n\e\033[0;33mDo you need to see a list of albums available to edit (y/n)? \033[0m"
 	read choice
 	
 	# show a list of albums in the database
@@ -307,25 +312,25 @@ modify_album() {
 		sorted_by_artist	
 	fi	
 
-	echo -en "\nWhat is the name of the album you would like to modify? "
+	echo -en "\n\e\033[0;33mWhat is the name of the album you would like to modify? \033[0m"
 	read album
 
-	echo -en "What is the name of the artist for the album? "
+	echo -en "\e\033[0;33mWhat is the name of the artist for the album? \033[0m"
 	read artist
 	
 	exit=0
 
 	# if album or artist isn't found, notify and exit
 	if ! grep -i "$album:$artist" albums.db ; then
-		$exit=1
-		echo -e "\e\033[0:31m$album by $artist does not exist in the database. Please refer to album list and try again. \033[0m"
+		let exit=1
+		echo -e "\n\e\033[0;31m$album by $artist does not exist in the database. Please refer to album list and try again. \033[0m"
 	fi
 
 	# if album and artist are found
 	if [ "$exit" == 0 ]; then
 
 		# confirm find
-		echo -e "\n\e\033[0:33mFound it.\033[0m"
+		echo -e "\n\e\033[0;33mFound it.\033[0m"
 
 		# store the album data record to a temp file
 		grep -i "$album:$artist" albums.db > album.tmp
