@@ -458,7 +458,16 @@ delete_all() {
 		*) echo -e "\n\e\033[0;32mDatabase deletion cancelled. Returning to menu.\033[0m\n";;
 	esac
 }
-# start main function
+
+
+# MMM         MMM   AAAAAAA   IIIIIIIII  NNN    NNN
+# MMMM       MMMM  AAAAAAAAA  IIIIIIIII  NNNN   NNN
+# MMMMN     MMMMM  AAA   AAA     III     NNNNN  NNN
+# MMMMMM   MMMMMM  AAA   AAA     III     NNNNNN NNN
+# MMM MMM MMM MMM  AAAAAAAAA     III     NNN NNNNNN
+# MMM  MMMMM  MMM  AAAAAAAAA     III     NNN  NNNNN
+# MMM   MMM   MMM  AAA   AAA  IIIIIIIII  NNN   NNNN
+# MMM    M    MMM  AAA   AAA  IIIIIIIII  NNN    NNN
 
 # clear screen at start up
 clear
