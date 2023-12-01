@@ -484,10 +484,16 @@ while [ "$hold_case" == 0 ]; do
 		"999") delete_all;;
 		*) echo -e "\n\e\033[0;32mThanks for using the Album Database Manager. \033[0m"
 			if [ -e "albums.db" ]; then
-               			echo "Album database records stored in \"albums.db\" file"
+               			echo -e "\e\033[1;36mAlbum database records stored in \"albums.db\" file.\033[0m"
 			else
-				echo "No album database records stored."
-			fi	
+				echo -e "\e\033[0;31mNo album database records stored.\033[0m"
+			fi
+
+			if [ -e "bands.db" ]; then
+                                echo -e "\e\033[1;36mBand database records stored in \"bands.db\" file.\033[0m"
+                        else
+                                echo -e "\e\033[0;31mNo band database records stored.\033[0m"
+                        fi	
 		echo -e "\n"
 		exit;;
 	esac
