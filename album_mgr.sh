@@ -103,7 +103,51 @@ sorted_by_artist () {
 	fi
 }
 
-# function 4: view all albums by a given artist, sorted by artist first then by release year
+# function 4: view all albums in database with album and band information
+album-band() {
+
+        # check to make sure albums.db and bands.db exist
+        if ! [ -e "albums.db" ] || ! [ -e "bands.db" ]; then
+                echo -e "It appears that either your album or database files are missing."
+                echo -e "Please be sure to add at least one album and band to the database"
+                echo -e "and try again."
+
+        # proceed to the listing
+        else
+		echo -e "\n\e\033[1;36m>>>>> View all albums in the database with available artist information.\n\033[0m"
+                # sort the albums.db and bands.db files by band name to temp files
+                sort -t ':' -k2,2 -k4,4  albums.db > albums.tmp
+                sort -t ':' -k 1  bands.db > bands.tmp
+
+                # join the albums.db and bands.db into a temp file
+                join -t: -1 2 -2 1 albums.tmp bands.tmp > joined.tmp
+
+                counter=1
+
+                while read -r line; do
+                        echo $line > line.tmp
+                        band=$(cut -d: -f1 line.tmp)
+                        album=$(cut -d: -f2 line.tmp)
+                        echo "Album $counter: '$album' by $band"
+                        echo "released by $(cut -d: -f3 line.tmp) in $(cut -d: -f4 line.tmp)"
+                        cut -d: -f5- line.tmp > band.tmp
+                        echo "$band is:"
+                        while read -r line; do
+                                IFS=":"
+                                for each in $line; do
+                                        echo "  $each"
+                                done
+                        IFS=""
+                        done < band.tmp
+                        echo ""
+                        let counter+=1
+                done < joined.tmp
+
+                rm albums.tmp bands.tmp joined.tmp line.tmp band.tmp
+        fi
+}
+
+# function 5: view all albums by a given artist, sorted by artist first then by release year
 view_by_artist () {	
 	echo -e "\n\e\033[1;36m>>>>> Look up all albums in the database by artist name.\033[0m"	
 	echo -en "\n\e\033[0;33mEnter the artist name: \033[0m"
@@ -119,7 +163,7 @@ view_by_artist () {
 	rm albumsorttempfile
 }
 
-# function 5: view all albums by a given label, sorted by label, then artist, then release year
+# function 6: view all albums by a given label, sorted by label, then artist, then release year
 view_by_label () {
         echo -e "\n\e\033[1;36m>>>>> Look up all albums in the database by label name.\033[0m"
         echo -en "\n\e\033[0;33mEnter the label name: \033[0m"
@@ -133,7 +177,7 @@ view_by_label () {
         rm albumsorttempfile
 }
 
-# function 6: view a list of bands/artists with albums in the database
+# function 7: view a list of bands/artists with albums in the database
 view_artists() {
 	echo -e "\n\e\033[1;36m>>>>> View band/artist list from the database.\033[0m"
 	echo -e "\nHere is a list of all bands/artists with albums in the database:"
@@ -148,7 +192,7 @@ view_artists() {
 	rm artisttempfile
 }
 
-# function 7: view a list of labels with albums in the database
+# function 8: view a list of labels with albums in the database
 view_labels() {
 	echo -e "\n\e\033[1;36m>>>>> View label list from the database.\033[0m"
         echo -e "\nHere is a list of all labels/publishers with albums in the database:"
@@ -163,7 +207,7 @@ view_labels() {
         rm labeltempfile
 }
 
-# function 8: delete an album from the database
+# function 9: delete an album from the database
 delete_album () {
 	echo -e "\n\e\033[1;36m>>>>> Delete an album from the database. \033[0m"
 
@@ -197,7 +241,7 @@ delete_album () {
 	fi
 }
 
-# funciton 9: modify an album's attributes in the database
+# funciton 10: modify an album's attributes in the database
 modify_album() { 
 	echo -e "\n\e\033[1;36m>>>>> Modify album info. \033[0m"
 	
@@ -378,12 +422,13 @@ while [ "$hold_case" == 0 ]; do
 	echo "	1) Add a new album to the album database."
 	echo "	2) Add a new band to the band database."
 	echo "	3) View all albums in the database, sorted by band/artist."
-	echo "	4) View albums from a particular band/artist."
-	echo "	5) View albums from a particular label/publisher."
-	echo "	6) View a list of bands/artists with albums in the database."
-	echo "	7) View a list of labels/publishers with albums in the database."
-	echo "	8) Delete an album from the database."
-	echo "	9) Modify an album's information."
+	echo "	4) View all albums in the database with artist information."
+	echo "	5) View albums from a particular band/artist."
+	echo "	6) View albums from a particular label/publisher."
+	echo "	7) View a list of bands/artists with albums in the database."
+	echo "	8) View a list of labels/publishers with albums in the database."
+	echo "	9) Delete an album from the database."
+	echo "	10) Modify an album's information."
 	echo -e "	\e\033[0;31m999) Delete the entire database. (CAUTION! THIS IS PERMANENT!)\033[0m"
 	echo -e "\n	(Any other selection to exit the datatabse manager)"
 	echo -en "\n\e\033[0;33mPlease type a selection number: \033[0m"
@@ -394,12 +439,13 @@ while [ "$hold_case" == 0 ]; do
 		"1") new_album;;
 		"2") new_band;;
 		"3") sorted_by_artist;;
-		"4") view_by_artist;;
-		"5") view_by_label;;
-		"6") view_artists;;
-		"7") view_labels;;
-		"8") delete_album;;
-		"9") modify_album;;
+		"4") album-band | more;;
+		"5") view_by_artist;;
+		"6") view_by_label;;
+		"7") view_artists;;
+		"8") view_labels;;
+		"9") delete_album;;
+		"10") modify_album;;
 		"999") delete_all;;
 		*) echo -e "\n\e\033[0;32mThanks for using the Album Database Manager. \033[0m"
 			if [ -e "albums.db" ]; then

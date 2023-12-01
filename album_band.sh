@@ -38,7 +38,7 @@ album-band() {
 			let counter+=1
 		done < joined.tmp
 
-		rm *.tmp
+		rm albums.tmp bands.tmp joined.tmp line.tmp band.tmp
 	fi
 }
 
