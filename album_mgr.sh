@@ -6,10 +6,6 @@
 # Purpose: 	This script allows for the creation of a database for 
 #		vinyl records with ONE FILE ONLY - "albums.db" and a
 #		database for bands/artists with ONE FILE ONLY - "bands.db".	
-#		Note that first there are a series of functions that
-#		express data entry and modifications of records in the
-#		database, followed by a main function that controls
-#		database actions via a case menu.
 #---------------------------------------------------------------------------
 
 
@@ -29,7 +25,8 @@ new_album() {
 
 	echo -en "\e\033[0;33mEnter the year the album was released: \033[0m"
 	read album_year
-
+	
+	# build album record from variables, store to albums database
 	echo $album_name:$album_artist:$album_label:$album_year >> albums.db
 	echo -e "\n\e\033[0;32mYou have created an entry for \"$album_name\" by $album_artist, released by $album_label in $album_year.\n\033[0m"
 }
@@ -48,7 +45,7 @@ new_band() {
 
         # while loop for adding band members and their instruments/roles
         while [ $quit == "n" ]; do
-                echo -en "\e\033[0;33mAdd band member (\"q\" to quit adding):\033[0m "
+                echo -en "\n\e\033[0;33mAdd band member (\"q\" to quit adding):\033[0m "
                 read band_member
 
                 # exit condition when done adding band members
@@ -61,7 +58,6 @@ new_band() {
                         echo -en "\e\033[0;33mEnter their instrument/role in the band:\033[0m "
                         read instrument
                         echo -n $instrument: >> bands.tmp
-                        echo ""
                 fi
         done
 
@@ -116,7 +112,10 @@ album-band() {
         # proceed to the listing
         else
 		echo -e "\n\e\033[1;36m>>>>> View all albums in the database with available artist information.\n\033[0m"
-                # sort the albums.db and bands.db files by band name to temp files
+		echo -e "\n\e\033[1;36m>>>>> Note that albums without detailed band information (and vice versa)\n\033[0m"
+		echo -e "\n\e\033[1;36m>>>>> will not be displayed.\n\033[0m"
+
+		# sort the albums.db and bands.db files by band name to temp files
                 sort -t ':' -k2,2 -k4,4  albums.db > albums.tmp
                 sort -t ':' -k 1  bands.db > bands.tmp
 
@@ -149,33 +148,49 @@ album-band() {
 }
 
 # function 5: view all albums by a given artist, sorted by artist first then by release year
-view_by_artist () {	
+view_by_artist () {
+
+	# intro, prompt and entry for artist name	
 	echo -e "\n\e\033[1;36m>>>>> Look up all albums in the database by artist name.\033[0m"	
 	echo -en "\n\e\033[0;33mEnter the artist name: \033[0m"
 	read artist
+
+	# display table of all albums by the entered artist in the albums database
+	# note that if the artist is not found in the databse, no entries will be shown
 	echo -e "\n\e\033[1;36mHere's everything in the database by $artist: \033[0m\n"
-	sort -t ':' -k2,2 -k4,4 albums.db | grep -i "$artist" > albumsorttempfile
-	#sort -t ':' -k2,2 -k4,4 albums.db > albumsorttempfile
-	#grep -i "$artist" albumsorttempfile > albumsorttempfile 
+
+	# sort the file by artist first, then release year, pipe to grep for entered artist and store to a temp file
+	sort -t ':' -k2,2 -k4,4 albums.db | grep -i "$artist" > albumsort.tmp
 	awk 'BEGIN { format = "%-25s %-25s %-20s %-4s\n"
         	printf format, "Artist", "Album", "Label", "Year" }'
 	echo "-----------------------------------------------------------------------------"
-	awk -F: '{ printf "%-25s %-25s %-20s %d\n", $2, $1, $3, $4 }' albumsorttempfile
-	rm albumsorttempfile
+	awk -F: '{ printf "%-25s %-25s %-20s %d\n", $2, $1, $3, $4 }' albumsort.tmp
+
+	# remove the temp file when done
+	rm albumsort.tmp
 }
 
 # function 6: view all albums by a given label, sorted by label, then artist, then release year
 view_by_label () {
+
+	# intro, prompt for label name
         echo -e "\n\e\033[1;36m>>>>> Look up all albums in the database by label name.\033[0m"
         echo -en "\n\e\033[0;33mEnter the label name: \033[0m"
         read label
+
+	# display table of all albums by the entered label in the albums database
+	# note that if the label is not found in the database, no entries will be shown
         echo -e "\n\e\033[1;36mHere's everything in the database from $label: \033[0m\n"
-        sort -t ':' -k2,2 -k4,4 albums.db | grep -i "$label" > albumsorttempfile
+
+	# sort the file by artist, then release year, pupe to grep for entered label and store to temp file
+        sort -t ':' -k2,2 -k4,4 albums.db | grep -i "$label" > albumsort.tmp
         awk 'BEGIN { format = "%-25s %-25s %-20s %-4s\n"
                 printf format, "Label", "Album", "Band/Artist", "Year" }'
         echo "-----------------------------------------------------------------------------"
-        awk -F: '{ printf "%-25s %-25s %-20s %d\n", $3, $1, $2, $4 }' albumsorttempfile
-        rm albumsorttempfile
+        awk -F: '{ printf "%-25s %-25s %-20s %d\n", $3, $1, $2, $4 }' albumsort.tmp
+
+	# remove the temp file when done
+        rm albumsort.tmp
 }
 
 # function 7: view a list of bands/artists with albums in the database
@@ -184,13 +199,15 @@ view_artists() {
 	echo -e "\nHere is a list of all bands/artists with albums in the database:"
 	
 	# pull the artists from field 2 in the db file, sort them by name, get the unique entries, send to a temp file
-	cut -d ":" -f 2 albums.db | sort | uniq > artisttempfile
+	cut -d ":" -f 2 albums.db | sort | uniq > artist.tmp
 
 	# from the temp file, print the band names to screen with a 'tab' before for formatting, then delete the file
 	while read -r band; do	
 		echo "	$band"
-	done < artisttempfile
-	rm artisttempfile
+	done < artist.tmp
+
+	# remove temp file when done
+	rm artist.tmp
 }
 
 # function 8: view a list of labels with albums in the database
@@ -199,13 +216,15 @@ view_labels() {
         echo -e "\nHere is a list of all labels/publishers with albums in the database:"
 
 	# pull the label names from field 3 in the db file, sort them by name, get the unique entries, send to a temp file
-	cut -d ":" -f 3 albums.db | sort | uniq > labeltempfile
+	cut -d ":" -f 3 albums.db | sort | uniq > label.tmp
         
 	# from the temp file, print the label names to screen with a 'tab' before for formatting, then delete the file
 	while read -r band; do
                 echo "  $band"
-        done < labeltempfile
-        rm labeltempfile
+        done < label.tmp
+
+	# remove temp file when done
+        rm label.tmp
 }
 
 view_bands() {
@@ -235,7 +254,8 @@ view_bands() {
                         echo ""
                         let counter+=1
                 done < bands.tmp
-
+		
+		# remove temp files
                 rm bands.tmp line.tmp band.tmp
         fi
 }
